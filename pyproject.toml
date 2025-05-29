@@ -1,19 +1,16 @@
-[project]
+[tool.poetry]
 name = "ai-classifier"
 version = "0.1.0"
 description = ""
-authors = [
-    {name = "usame1997",email = "ly1997.sy@gmail.com"}
-]
+authors = ["usame1997 <ly1997.sy@gmail.com>"]
 readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-    "flask (>=3.1.1,<4.0.0)",
-    "torch (>=2.7.0,<3.0.0)",
-    "transformers (>=4.52.3,<5.0.0)"
-]
 
+[tool.poetry.dependencies]
+python = "^3.10"  # ⚠️ تغيير مهم لتتوافق مع Render
+flask = "^3.1.1"
+torch = "^2.7.0"
+transformers = "^4.52.3"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
