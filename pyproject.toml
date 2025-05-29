@@ -3,7 +3,7 @@ name = "ai-classifier"
 version = "0.1.0"
 description = ""
 authors = ["usame1997 <ly1997.sy@gmail.com>"]
-package-mode = false  # ⬅️ أضف هذا السطر
+
 
 
 [tool.poetry.dependencies]
