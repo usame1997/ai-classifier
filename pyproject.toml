@@ -3,13 +3,14 @@ name = "ai-classifier"
 version = "0.1.0"
 description = ""
 authors = ["usame1997 <ly1997.sy@gmail.com>"]
-readme = "README.md"
+package-mode = false  # ⬅️ أضف هذا السطر
+
 
 [tool.poetry.dependencies]
-python = "^3.10"  # ⚠️ يجب أن يبقى 3.10 لتتوافق مع Render
+python = "^3.10"
 flask = "^3.1.1"
-torch = "^2.0.1" # ⚠️ تغيير مهم: استخدام إصدار أقدم متوافق مع Python 3.10
-transformers = "^4.30.0"  # ⚠️ تخفيض الإصدار لتجنب التعارضات
+torch = "^2.0.1"
+transformers = "^4.52.3"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
