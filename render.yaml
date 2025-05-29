@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: ai-classifier
+    env: python
+    pythonVersion: 3.10.12
+    buildCommand: ""
+    startCommand: "python app.py"
+    region: oregon
