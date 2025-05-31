@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # تأكد من استيراد CORS
+from flask_cors import CORS, cross_origin
 import re
 import os
 
