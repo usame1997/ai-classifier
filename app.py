@@ -1,3 +1,4 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
@@ -39,8 +40,7 @@ banned_keywords = [
     "تحويل بنكي مشبوه", "شراء أصوات", "احتيال بنكي", "تلاعب مالي", "قرصنة", "اختراق",
 ]
 
-# في كود Flask (تأكد من تطابق أسماء الحقول)
-# في كود Flask
+# الحقول التي يتم فحصها
 FIELDS_TO_CHECK = [
     "title",
     "description",
@@ -50,7 +50,6 @@ FIELDS_TO_CHECK = [
 
 def clean_text(text):
     text = text.strip().lower()
-    # التعديل: يلتقط الكلمات مع التشكيل والهمزات
     words = re.findall(r'[\u0600-\u06FF\u061B-\u061F\u0640]+', text)
     return words
 
@@ -58,15 +57,11 @@ def clean_text(text):
 def predict():
     try:
         data = request.get_json()
-        
-        # ✅ فحص جميع الحقول المحددة
         for field in FIELDS_TO_CHECK:
             content = data.get(field, "")
             if not content.strip():
-                continue  # تخطي الحقول الفارغة
-            
+                continue
             words = clean_text(content)
-            
             for word in words:
                 if word in banned_keywords:
                     return jsonify({
@@ -74,9 +69,7 @@ def predict():
                         "reason": f"كلمة ممنوعة: {word}",
                         "field": field
                     })
-
         return jsonify({"result": "مسموح"})
-
     except Exception as e:
         return jsonify({
             "result": "خطأ",
@@ -84,4 +77,5 @@ def predict():
         }), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 5000))  # ✅ مهم لـ Render
+    app.run(host="0.0.0.0", port=port)
