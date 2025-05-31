@@ -1,16 +1,17 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import re
 import os
 
 app = Flask(__name__)
 
-# ✅ حل شامل لمشكلة CORS
+# ✅ إعداد CORS شامل مع تحسينات
 cors = CORS(app, resources={
     r"/predict": {
-        "origins": ["http://localhost:3000", "https://your-frontend-domain.com"],
+        "origins": "*",
         "methods": ["POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type"],
+        "supports_credentials": True
     }
 })
 
@@ -62,17 +63,20 @@ def clean_text(text):
     return words
 
 @app.route('/predict', methods=['POST', 'OPTIONS'])
-@cross_origin()
 def predict():
     try:
-        # معالجة طلب OPTIONS للطلبات الاستباقية
+        # معالجة طلبات OPTIONS الاستباقية
         if request.method == 'OPTIONS':
-            response = jsonify()
+            response = jsonify({
+                "status": "ok",
+                "message": "Preflight request accepted"
+            })
             response.headers.add('Access-Control-Allow-Origin', '*')
             response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
             response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
             return response
         
+        # معالجة طلبات POST
         data = request.get_json()
         for field in FIELDS_TO_CHECK:
             content = data.get(field, "")
@@ -92,21 +96,15 @@ def predict():
             "result": "خطأ",
             "error": str(e)
         })
-        response.status_code = 500
-        return response
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response, 500
 
 # معالج بعد الطلب لإضافة رؤوس CORS
 @app.after_request
 def add_cors_headers(response):
-    # السماح لجميع الأصول (للنموذج فقط، في الإنتاج حدد أصولاً محددة)
     response.headers['Access-Control-Allow-Origin'] = '*'
-    
-    # السماح للرؤوس المطلوبة
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    
-    # السماح للطرق المسموح بها
     response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
-    
     return response
 
 if __name__ == "__main__":
