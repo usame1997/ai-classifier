@@ -1,10 +1,17 @@
-import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import re
+import os
 
 app = Flask(__name__)
-CORS(app)
+# 🔹 إعداد CORS شامل
+CORS(app, resources={
+    r"/*": {
+        "origins": ["*"],  # للإنتاج استبدل بالأصول المحددة
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # ✅ قائمة الكلمات الممنوعة (محدثة)
 banned_keywords = [
