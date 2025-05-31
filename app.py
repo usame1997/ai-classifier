@@ -1,14 +1,15 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import re
 import os
 
 app = Flask(__name__)
-# 🔹 إعداد CORS شامل
-CORS(app, resources={
-    r"/*": {
-        "origins": ["*"],  # للإنتاج استبدل بالأصول المحددة
-        "methods": ["GET", "POST", "OPTIONS"],
+
+# ✅ حل شامل لمشكلة CORS
+cors = CORS(app, resources={
+    r"/predict": {
+        "origins": ["http://localhost:3000", "https://your-frontend-domain.com"],
+        "methods": ["POST", "OPTIONS"],
         "allow_headers": ["Content-Type"]
     }
 })
@@ -60,9 +61,18 @@ def clean_text(text):
     words = re.findall(r'[\u0600-\u06FF\u061B-\u061F\u0640]+', text)
     return words
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['POST', 'OPTIONS'])
+@cross_origin()
 def predict():
     try:
+        # معالجة طلب OPTIONS للطلبات الاستباقية
+        if request.method == 'OPTIONS':
+            response = jsonify()
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+            response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+            return response
+        
         data = request.get_json()
         for field in FIELDS_TO_CHECK:
             content = data.get(field, "")
@@ -78,10 +88,26 @@ def predict():
                     })
         return jsonify({"result": "مسموح"})
     except Exception as e:
-        return jsonify({
+        response = jsonify({
             "result": "خطأ",
             "error": str(e)
-        }), 500
+        })
+        response.status_code = 500
+        return response
+
+# معالج بعد الطلب لإضافة رؤوس CORS
+@app.after_request
+def add_cors_headers(response):
+    # السماح لجميع الأصول (للنموذج فقط، في الإنتاج حدد أصولاً محددة)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    
+    # السماح للرؤوس المطلوبة
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    
+    # السماح للطرق المسموح بها
+    response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+    
+    return response
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # ✅ مهم لـ Render
